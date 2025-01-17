@@ -1,0 +1,98 @@
+AzureOpenAIFunction(
+            name="content_ideator",
+            description="Creates an outline from the feeder idea",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "feeder_idea": {
+                        "type": "string",
+                        "description": "The original feeder idea expressed in a single sentence"
+                    }
+                },
+                "required": ["feeder_idea"]
+            }
+        ),
+        AzureOpenAIFunction(
+            name="content_expander",
+            description="Expands an outline into a full draft with paragraphs",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "outline": {
+                        "type": "string",
+                        "description": "An outline to be expanded"
+                    }
+                },
+                "required": ["outline"]
+            }
+        ),
+        AzureOpenAIFunction(
+            name="knowledge_finder",
+            description="Enriches the text with references, data, and citations",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "draft": {
+                        "type": "string",
+                        "description": "A text draft that needs more data/references"
+                    }
+                },
+                "required": ["draft"]
+            }
+        ),
+        AzureOpenAIFunction(
+            name="peer_reviewer",
+            description="Reviews the draft for professional quality, domain accuracy, coherence, and suggests improvements based on professional services content principles.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "draft": {
+                        "type": "string",
+                        "description": "The expanded or enriched text that needs an in-depth professional review"
+                    }
+                },
+                "required": ["draft"]
+            }
+        ),
+        AzureOpenAIFunction(
+            name="summarizer",
+            description="Generates a concise summary of the whitepaper or final text, highlighting key points and major conclusions.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "description": "The full or partial text of the whitepaper that needs summarizing"
+                    }
+                },
+                "required": ["content"]
+            }
+        ),
+        AzureOpenAIFunction(
+            name="search_optimizer",
+            description="Optimizes text for search engines by integrating keywords, improving headings, and aligning with SEO best practices.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "The text that needs SEO optimization (e.g., headings, keywords, meta descriptions)"
+                    }
+                },
+                "required": ["text"]
+            }
+        ),
+        AzureOpenAIFunction(
+            name="proofreader",
+            description="Proofreads the text for grammar, spelling, punctuation, and style issues while preserving the author's intended meaning.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "draft": {
+                        "type": "string",
+                        "description": "The text that requires a final proofreading pass"
+                    }
+                },
+                "required": ["draft"]
+            }
+        )
