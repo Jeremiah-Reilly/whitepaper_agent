@@ -164,6 +164,7 @@ def orchestrate_feeder_idea(feeder_idea: str) -> str:
         functions_called = set()
         final_answer = None
         function_calls_made = 0
+        last_known_draft = None
 
         # 3. Loop until the LLM produces a final text answer (i.e., no function call).
         while True:
@@ -193,40 +194,66 @@ def orchestrate_feeder_idea(feeder_idea: str) -> str:
                     except json.JSONDecodeError:
                         # If invalid JSON, we can handle error or ignore
                         arguments = {}
+                        print(f"Error: invalid json from {name}")
 
                     # Call the actual python function
                     if name == "content_ideator":
-                        print("calling content ideator")
+                        print(f"calling {name}")
                         result = content_ideator(**arguments)
+                        last_known_draft = result
                     elif name == "content_expander":
-                        print("calling content expander")
+                        print(f"calling {name}")
                         result = content_expander(**arguments)
+                        last_known_draft = result
                     elif name == "knowledge_finder":
-                        print("calling knowledge_finder")
+                        print(f"calling {name}")
                         result = knowledge_finder(**arguments)
+                        last_known_draft = result
                     elif name == "peer_reviewer":
-                        print("calling peer reviewer")
+                        print(f"calling {name}")
                         # Sometimes the model gets stuck not providing the draft to peer reviewer, here we help it along
-                        if "draft" not in arguments:
-                            messages.append({
-                            "role": "system",
-                            "content": (
-                                "Error: You called peer_reviewer without passing 'draft'. "
-                                "Please provide the 'draft' argument for peer review."
-                            )
-                            })
-                            continue  # Let the LLM try again
+                        if "draft" not in arguments or not arguments["draft"]:
+                            if last_known_draft:
+                                arguments["draft"] = last_known_draft
+                                result = peer_reviewer(**arguments)
+                            else:
+                                messages.append({
+                                "role": "system",
+                                "content": (
+                                    "Error: You called peer_reviewer without passing 'draft'. "
+                                    "Please provide the 'draft' argument for peer review."
+                                )
+                                })
+                                continue  # Let the LLM try again
                         else:
                             result = peer_reviewer(**arguments)
+                        last_known_draft = result
                     elif name == "summarizer":
-                        print("calling summarizer")
+                        print(f"calling {name}")
                         result = summarizer(**arguments)
                     elif name == "search_optimizer":
-                        print("calling search optimizer")
+                        print(f"calling {name}")
                         result = search_optimizer(**arguments)
+                        last_known_draft = result
                     elif name == "proofreader":
-                        print("calling proofreader")
-                        result = proofread(**arguments)
+                        print(f"calling {name}")
+                        # Sometimes the model gets stuck not providing the draft to proofread, here we help it along
+                        if "draft" not in arguments or not arguments["draft"]:
+                            if last_known_draft:
+                                arguments["draft"] = last_known_draft
+                                result = proofread(**arguments)
+                            else:
+                                messages.append({
+                                "role": "system",
+                                "content": (
+                                    "Error: You called proofread without passing 'draft'. "
+                                    "Please provide the 'draft' argument for proofread."
+                                )
+                                })
+                                continue  # Let the LLM try again
+                        else:
+                            result = peer_reviewer(**arguments)
+                        last_known_draft = result
                     else:
                         # fallback if the function name is unknown
                         result = f"Error: unknown function '{name}'"
