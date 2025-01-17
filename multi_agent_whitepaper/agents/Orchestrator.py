@@ -191,6 +191,8 @@ def orchestrate_feeder_idea(feeder_idea: str) -> str:
                     # Parse arguments
                     try:
                         arguments = json.loads(arguments_str)
+                        if "recipient_name" in arguments:
+                            del arguments["recipient_name"]
                     except json.JSONDecodeError:
                         # If invalid JSON, we can handle error or ignore
                         arguments = {}
